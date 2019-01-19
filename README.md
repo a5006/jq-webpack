@@ -1,5 +1,5 @@
 # jq-webpack
-##首先安装webpack4 
+## 首先安装webpack4 
 
 `
 npm i -D webpack webpack-cli
@@ -22,4 +22,4 @@ npm run dev
 
 然后就可以愉快的玩耍
 
-##跑不动不关我事...
+## 跑不动不关我事...
