@@ -1,4 +1,5 @@
 var webpack = require('webpack');
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 var path = require('path');
 var glob = require('glob');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -34,6 +35,8 @@ var host = getIPAdress();
 function getEntry() {
   var entry = {};
   //读取src目录所有page入口
+  // console.log(process.env.NODE_ENV)
+  // console.log(glob.sync('./src/js/**/*.js'), 'this is glob')
   glob.sync('./src/js/**/*.js').forEach(function (name) {
     var start = name.indexOf('src/') + 4;
     var end = name.length - 3;
@@ -65,56 +68,59 @@ module.exports = {
   },
   module: {
     rules: [{
-        test: /\.js$/,
-        exclude: /(node_modules)/,
-        include: /src/,
-        use: [{
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env', ],
-            plugins: ['@babel/transform-runtime']
-          }
-        }]
-      },
-      {
-        test: /\.css$/,
-        //use:['style-loader','css-loader','postcss-loader']//css不分离写法
-        //css分离写法
-        use: [MiniCssExtractPlugin.loader, "css-loader", {
-          loader: "postcss-loader",
-          options: {
-            plugins: [
-              autoprefixer({
-                browsers: ['ie >= 8', 'Firefox >= 20', 'Safari >= 5', 'Android >= 4', 'Ios >= 6', 'last 4 version']
-              })
-            ]
-          }
-        }]
-      },
-      {
-        test: /\.scss$/,
-        //use:['style-loader','css-loader','sass-loader','postcss-loader']//css不分离写法
-        //css分离写法
-        use: [MiniCssExtractPlugin.loader, "css-loader", {
-          loader: "postcss-loader",
-          options: {
-            plugins: [
-              autoprefixer({
-                browsers: ['ie >= 8', 'Firefox >= 20', 'Safari >= 5', 'Android >= 4', 'Ios >= 6', 'last 4 version']
-              })
-            ]
-          }
-        }, "sass-loader"]
-      },
+      test: /\.js$/,
+      exclude: /(node_modules)/,
+      include: /src/,
+      use: [{
+        loader: 'babel-loader',
+        options: {
+          presets: ['@babel/preset-env',],
+          plugins: ['@babel/transform-runtime']
+        }
+      }]
+    },
+    {
+      test: /\.css$/,
+      //use:['style-loader','css-loader','postcss-loader']//css不分离写法
+      //css分离写法
+      use: [MiniCssExtractPlugin.loader, "css-loader", {
+        loader: "postcss-loader",
+        options: {
+          plugins: [
+            autoprefixer({
+              browsers: ['ie >= 8', 'Firefox >= 20', 'Safari >= 5', 'Android >= 4', 'Ios >= 6', 'last 4 version']
+            })
+          ]
+        }
+      }]
+    },
+    {
+      test: /\.scss$/,
+      //use:['style-loader','css-loader','sass-loader','postcss-loader']//css不分离写法
+      //css分离写法
+      use: [MiniCssExtractPlugin.loader, "css-loader", {
+        loader: "postcss-loader",
+        options: {
+          plugins: [
+            autoprefixer({
+              browsers: ['ie >= 8', 'Firefox >= 20', 'Safari >= 5', 'Android >= 4', 'Ios >= 6', 'last 4 version']
+            })
+          ]
+        }
+      }, "sass-loader"]
+    },
       {
         test: /\.(png|jpg|gif|jpeg)$/,
         use: [{
           loader: 'url-loader',
           options: {
-            limit: 5000
+            limit: 10000,
+            name: 'image/[name].[ext]?[hash]',
+            // publicPath:'/'
+            publicPath: process.env.NODE_ENV === 'production' ? path.resolve(__dirname, 'dist'): '/'
           }
         }]
-      }
+      },
     ]
   },
   mode: "development",
@@ -133,10 +139,11 @@ module.exports = {
       "window.jQuery": "jquery"
     }),
     new TransferWebpackPlugin([{
-      from: 'assets',
-      to: 'assets'
+      from: 'public',
+      to: 'public'
     }], path.resolve(__dirname, "src")),
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
+    new CleanWebpackPlugin(['./dist'])
   ],
   devServer: {
     contentBase: path.resolve(__dirname, 'dist'), //最好设置成绝对路径
