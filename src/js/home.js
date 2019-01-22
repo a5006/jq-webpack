@@ -7,7 +7,9 @@ import TestData from '../util/test_data'
 
 $(document).ready(function(){
   main.ajax(api.GETHOME_API).then(res=>{
-    console.log(res,'ss')
+    console.log(res)
+    let {content} = res.var 
+   $(".box").text(content)
   })
   
 })
